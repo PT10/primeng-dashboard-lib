@@ -1,9 +1,26 @@
-import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'lib-dashboard-primeng',
   template: `
   <div #tb style="height: 100%" [ngSwitch]="chartConfig.chartType">
+    <div *ngSwitchCase="'searchbar'" class="ui-g ui-fluid">
+      <div class="ui-g-12 ui-md-12">
+          <div class="ui-inputgroup">
+            <button pButton type="button" [label]="chartConfig.buttonText" (click)="triggerEvent({data: chartConfig.value})"></button>
+            <input type="text" pInputText [placeholder]="chartConfig.emptyText" [(ngModel)]="chartConfig.value">
+          </div>
+      </div>
+    </div>
+    <div *ngSwitchCase="'timerange'" class="ui-g ui-fluid">
+      <div class="ui-g-12 ui-md-10">
+        <div class="ui-inputgroup">
+          <label style="padding-right: 10px; width: 30%">{{chartConfig.label}}</label>
+          <p-calendar [ngStyle]="{'width': '70%'}" [(ngModel)]="dateRange" selectionMode="range"
+            [readonlyInput]="true" [showIcon]="true" [appendTo]="'body'" (onClose)="dateRange.length === 2 ? triggerEvent({data: dateRange}) : undefined"></p-calendar>
+        </div>
+      </div>
+    </div>
     <p-table *ngSwitchCase="'table'" #dt [columns]="chartConfig.columns" [value]="dataset.source"
           [paginator]="chartConfig.pagination" [rows]="chartConfig.pageSize" [resizableColumns]="true"
           [scrollable]="true" [style]="getTableStyle()" [scrollHeight]="getScrollHeight()">
@@ -64,7 +81,12 @@ export class LibDashboardPrimengComponent implements OnInit, AfterViewInit {
   @Input()
   dataset;
 
+  @Output()
+  onEvent: EventEmitter<any> = new EventEmitter<any> ();
+
   tableHeight;
+
+  dateRange: Date[];
 
   @ViewChild('tb', {static: true})
   myIdentifier: ElementRef;
@@ -84,6 +106,10 @@ export class LibDashboardPrimengComponent implements OnInit, AfterViewInit {
 
   getTableStyle() {
     return {width:'100%', 'height': (this.myIdentifier.nativeElement.offsetHeight) + "px"}
+  }
+
+  triggerEvent(data) {
+    this.onEvent.emit(data);
   }
 
 }
