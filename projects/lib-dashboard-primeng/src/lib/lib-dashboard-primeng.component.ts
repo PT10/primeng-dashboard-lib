@@ -8,7 +8,9 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Outp
       <div class="ui-g-12 ui-md-12">
           <div class="ui-inputgroup">
             <button pButton type="button" [label]="chartConfig.buttonText" (click)="triggerEvent({data: chartConfig.value})"></button>
-            <input type="text" pInputText [placeholder]="chartConfig.emptyText" [(ngModel)]="chartConfig.value">
+            <input type="text" pInputText [placeholder]="chartConfig.emptyText" [(ngModel)]="chartConfig.value" 
+            
+            (keyup.enter)="triggerEvent({data: chartConfig.value})"> <!-- (blur)="triggerEvent({data: chartConfig.value})" -->
           </div>
       </div>
     </div>
