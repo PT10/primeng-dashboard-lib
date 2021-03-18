@@ -14,6 +14,14 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Outp
           </div>
       </div>
     </div>
+    <div *ngSwitchCase="'single'" class="ui-g ui-fluid">
+      <div class="ui-g-12 ui-md-12" style="text-align: center; top: 20%; position: absolute">
+          <div class="ui-inputgroup" style="align-items: baseline; display: contents">
+            <span [ngStyle]="{'font-size': chartConfig['font-size'], 'font-weight': chartConfig['font-weight']}">{{getSingleStat()}}</span>
+            <label>{{chartConfig.seriesName}}</label>
+          </div>
+      </div>
+    </div>
     <div *ngSwitchCase="'timerange'" class="ui-g ui-fluid">
       <div class="ui-g-12 ui-md-10">
         <div class="ui-inputgroup">
@@ -112,6 +120,14 @@ export class LibDashboardPrimengComponent implements OnInit, AfterViewInit {
 
   triggerEvent(data) {
     this.onEvent.emit(data);
+  }
+
+  getSingleStat() {
+    if (!this.dataset.source || !this.dataset.source[0]) {
+      return 0;
+    }
+
+    return this.dataset.source[0][this.dataset.dimensions[0]];
   }
 
 }
