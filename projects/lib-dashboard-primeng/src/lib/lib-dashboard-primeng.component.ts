@@ -25,8 +25,8 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Outp
     <div *ngSwitchCase="'timerange'" class="ui-g ui-fluid">
       <div class="ui-g-12 ui-md-10">
         <div class="ui-inputgroup">
-          <label style="padding-right: 10px; width: 30%">{{chartConfig.label}}</label>
-          <p-calendar [ngStyle]="{'width': '70%'}" [(ngModel)]="dateRange" selectionMode="range"
+          <label style="padding-right: 10px; width: 20%">{{chartConfig.label}}</label>
+          <p-calendar [ngStyle]="{'width': '80%'}" [(ngModel)]="dateRange" selectionMode="range" [showTime]="true"
             [readonlyInput]="true" [showIcon]="true" [appendTo]="'body'" (onClose)="dateRange.length === 2 ? triggerEvent({data: dateRange}) : undefined"></p-calendar>
         </div>
       </div>
