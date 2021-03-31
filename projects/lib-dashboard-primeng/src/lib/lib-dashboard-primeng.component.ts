@@ -9,8 +9,8 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Outp
           <div class="ui-inputgroup">
             <button pButton type="button" [label]="chartConfig.buttonText" (click)="triggerEvent({data: chartConfig.value})"></button>
             <input type="text" pInputText [placeholder]="chartConfig.emptyText" [(ngModel)]="chartConfig.value" 
-            
-            (keyup.enter)="triggerEvent({data: chartConfig.value})"> <!-- (blur)="triggerEvent({data: chartConfig.value})" -->
+            (blur)="triggerEvent({data: chartConfig.value})"
+            (keyup.enter)="triggerEvent({data: chartConfig.value})">
           </div>
       </div>
     </div>
@@ -27,7 +27,9 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Outp
         <div class="ui-inputgroup">
           <label style="padding-right: 10px; width: 20%">{{chartConfig.label}}</label>
           <p-calendar [ngStyle]="{'width': '80%'}" [(ngModel)]="dateRange" selectionMode="range" [showTime]="true"
-            [readonlyInput]="true" [showIcon]="true" [appendTo]="'body'" (onClose)="dateRange.length === 2 ? triggerEvent({data: dateRange}) : undefined"></p-calendar>
+            [readonlyInput]="false" [showIcon]="true" [appendTo]="'body'" 
+            (onClose)="dateRange.length === 2 ? triggerEvent({data: dateRange}) : undefined">
+          </p-calendar>
         </div>
       </div>
     </div>
@@ -108,6 +110,49 @@ export class LibDashboardPrimengComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.tableHeight = this.myIdentifier.nativeElement.offsetHeight + "px";
+
+    if (!this.chartConfig.defaultValue) {
+      return;
+    }
+
+    if (this.chartConfig.chartType === 'timerange') {
+      if (this.chartConfig.value && this.chartConfig.value.length !== 0) {
+        this.dateRange = this.chartConfig.value.map(v => new Date(v));
+        this.triggerEvent({data: this.dateRange});
+      }
+      else {
+        const rx = /NOW-(\d+)(\w)/;
+        const vals: any[] = rx.exec(this.chartConfig.defaultValue)
+        if (vals && vals.length === 3) {
+          this.dateRange = [];
+          const now: Date = new Date();
+          const then: Date = new Date(now);
+
+          switch (vals[2]) {
+            case 'm' :
+              then.setMinutes(now.getMinutes() - vals[1])
+              this.dateRange.push(then);
+              break;
+            case 'h' :
+                then.setHours(now.getHours() - vals[1])
+                this.dateRange.push(then);
+                break;
+            case 's' :
+                then.setSeconds(now.getSeconds() - vals[1])
+                this.dateRange.push(then);
+                break;
+          }
+
+          this.dateRange.push(now);
+        
+          this.triggerEvent({data: this.dateRange});
+        }
+      }
+    } else if (this.chartConfig.chartType === 'searchbar') {
+      this.chartConfig.value = this.chartConfig.defaultValue;
+
+      this.triggerEvent({data: this.chartConfig.value});
+    }
   }
 
   getScrollHeight() {
