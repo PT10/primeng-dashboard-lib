@@ -6,6 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CalendarModule } from 'primeng/calendar';
 import { BrowserModule } from '@angular/platform-browser'
 import { FormsModule } from '@angular/forms';
+import {InputTextareaModule} from 'primeng/inputtextarea';
 
 
 
@@ -17,7 +18,8 @@ import { FormsModule } from '@angular/forms';
     TableModule,
     ButtonModule,
     InputTextModule,
-    CalendarModule
+    CalendarModule,
+    InputTextareaModule
   ],
   exports: [LibDashboardPrimengComponent]
 })

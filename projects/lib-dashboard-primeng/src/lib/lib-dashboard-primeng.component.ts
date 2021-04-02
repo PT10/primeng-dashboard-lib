@@ -7,15 +7,15 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Outp
     <div *ngSwitchCase="'searchbar'" class="ui-g ui-fluid">
       <div class="ui-g-12 ui-md-12">
           <div class="ui-inputgroup">
+            <textarea type="text" pInputTextarea autoResize="true" style="width: 90%" [rows]="chartConfig.rows" [placeholder]="chartConfig.emptyText" 
+            (blur)="searchQueryChange.emit(searchQuery);"
+            [(ngModel)]="searchQuery"></textarea> <!-- (blur)="triggerEvent({data: chartConfig.value})" (keyup.enter)="triggerEvent({data: chartConfig.value})" -->
             <button pButton type="button" [label]="chartConfig.buttonText" (click)="triggerEvent({data: chartConfig.value})"></button>
-            <input type="text" pInputText [placeholder]="chartConfig.emptyText" [(ngModel)]="chartConfig.value" 
-            (blur)="triggerEvent({data: chartConfig.value})"
-            (keyup.enter)="triggerEvent({data: chartConfig.value})">
           </div>
       </div>
     </div>
     <div *ngSwitchCase="'single'" class="ui-g ui-fluid">
-      <div class="ui-g-12 ui-md-12" style="text-align: center; top: 20%; position: absolute">
+      <div class="ui-g-12 ui-md-12" style="text-align: center; position: absolute">
           <div class="ui-inputgroup" style="align-items: baseline; display: contents">
             <span [ngStyle]="{'font-size': chartConfig['font-size'], 'font-weight': chartConfig['font-weight']}">{{getSingleStat()}}</span>
             <label>{{chartConfig.seriesName}}</label>
@@ -26,15 +26,15 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Outp
       <div class="ui-g-12 ui-md-10">
         <div class="ui-inputgroup">
           <label style="padding-right: 10px; width: 20%">{{chartConfig.label}}</label>
-          <p-calendar [ngStyle]="{'width': '80%'}" [(ngModel)]="dateRange" selectionMode="range" [showTime]="true"
-            [readonlyInput]="false" [showIcon]="true" [appendTo]="'body'" 
-            (onClose)="dateRange.length === 2 ? triggerEvent({data: dateRange}) : undefined">
+          <p-calendar [ngStyle]="{'width': '80%'}" [(ngModel)]="timeWindow" selectionMode="range" [showTime]="true"
+            (onClose)="timeWindowChange.emit(timeWindow); triggerEvent({data: timeWindow})"
+            [readonlyInput]="false" [showIcon]="true" [appendTo]="'body'"> <!-- (onClose)="dateRange.length === 2 ? triggerEvent({data: dateRange}) : undefined" -->
           </p-calendar>
         </div>
       </div>
     </div>
     <p-table *ngSwitchCase="'table'" #dt [columns]="chartConfig.columns" [value]="dataset.source"
-          [paginator]="chartConfig.pagination" [rows]="chartConfig.pageSize" [resizableColumns]="true"
+          [paginator]="chartConfig.pagination" [paginatorPosition]="chartConfig.paginatorPosition" [alwaysShowPaginator]="chartConfig.alwaysShowPaginator" [rows]="chartConfig.pageSize" [resizableColumns]="true"
           [scrollable]="true" [style]="getTableStyle()" [scrollHeight]="getScrollHeight()">
           <ng-template *ngIf="chartConfig.globalSearch" pTemplate="caption">
             <div style="text-align: right">
@@ -93,6 +93,18 @@ export class LibDashboardPrimengComponent implements OnInit, AfterViewInit {
   @Input()
   dataset;
 
+  @Input()
+  searchQuery: string;
+
+  @Output()
+  searchQueryChange: EventEmitter<any> = new EventEmitter<any> ();
+
+  @Input()
+  timeWindow: any[]
+
+  @Output()
+  timeWindowChange: EventEmitter<any> = new EventEmitter<any> ();
+
   @Output()
   onEvent: EventEmitter<any> = new EventEmitter<any> ();
 
@@ -111,47 +123,45 @@ export class LibDashboardPrimengComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.tableHeight = this.myIdentifier.nativeElement.offsetHeight + "px";
 
-    if (!this.chartConfig.defaultValue) {
-      return;
-    }
-
     if (this.chartConfig.chartType === 'timerange') {
-      if (this.chartConfig.value && this.chartConfig.value.length !== 0) {
-        this.dateRange = this.chartConfig.value.map(v => new Date(v));
-        this.triggerEvent({data: this.dateRange});
+      if (this.timeWindow && this.timeWindow.length === 2) {
+        this.timeWindow.map(v => new Date(v));
+        this.timeWindowChange.emit(this.timeWindow);
+        this.triggerEvent({data: this.timeWindow});
       }
-      else {
+      else if (this.chartConfig.defaultValue) {
         const rx = /NOW-(\d+)(\w)/;
         const vals: any[] = rx.exec(this.chartConfig.defaultValue)
         if (vals && vals.length === 3) {
-          this.dateRange = [];
+          this.timeWindow = [];
           const now: Date = new Date();
           const then: Date = new Date(now);
 
           switch (vals[2]) {
             case 'm' :
               then.setMinutes(now.getMinutes() - vals[1])
-              this.dateRange.push(then);
+              this.timeWindow.push(then);
               break;
             case 'h' :
                 then.setHours(now.getHours() - vals[1])
-                this.dateRange.push(then);
+                this.timeWindow.push(then);
                 break;
             case 's' :
                 then.setSeconds(now.getSeconds() - vals[1])
-                this.dateRange.push(then);
+                this.timeWindow.push(then);
                 break;
           }
 
-          this.dateRange.push(now);
-        
-          this.triggerEvent({data: this.dateRange});
+          this.timeWindow.push(now);
+
+          this.timeWindowChange.emit(this.timeWindow);
+          this.triggerEvent({data: this.timeWindow});
         }
       }
-    } else if (this.chartConfig.chartType === 'searchbar') {
-      this.chartConfig.value = this.chartConfig.defaultValue;
+    }
 
-      this.triggerEvent({data: this.chartConfig.value});
+    if (this.searchQuery && this.timeWindow && this.timeWindow.length === 2) {
+      this.triggerEvent({data: {}});
     }
   }
 
