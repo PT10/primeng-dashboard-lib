@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'lib-dashboard-primeng',
@@ -33,9 +34,11 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Outp
         </div>
       </div>
     </div>
-    <p-table *ngSwitchCase="'table'" #dt [columns]="chartConfig.columns" [value]="dataset.source"
-          [paginator]="chartConfig.pagination" [paginatorPosition]="chartConfig.paginatorPosition" [alwaysShowPaginator]="chartConfig.alwaysShowPaginator" [rows]="chartConfig.pageSize" [resizableColumns]="true"
-          [scrollable]="true" [style]="getTableStyle()" [scrollHeight]="getScrollHeight()">
+    <p-table *ngSwitchCase="'table'" #dt [columns]="chartConfig.columns" [value]="dataset.source" [rowsPerPageOptions]="chartConfig.rowsPerPageOptions" [responsive]="true"
+          [paginator]="chartConfig.pagination" [paginatorPosition]="chartConfig.paginatorPosition" [alwaysShowPaginator]="chartConfig.alwaysShowPaginator" [autoLayout]="chartConfig.autoLayout"
+          [showCurrentPageReport]="chartConfig.showCurrentPageReport" currentPageReportTemplate="Showing {{getFirst()}} to {{getLast()}} of {{dataset.source.length}} records"
+          [rows]="chartConfig.pageSize" [resizableColumns]="chartConfig.resizableColumns"
+          [scrollable]="chartConfig.scrollable" [style]="getTableStyle()" [scrollHeight]="getScrollHeight()" scrollWidth="100%">
           <ng-template *ngIf="chartConfig.globalSearch" pTemplate="caption">
             <div style="text-align: right">
                 <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
@@ -68,7 +71,7 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Outp
           <ng-template pTemplate="body" let-row let-i="rowIndex">
               <tr>
                   <td *ngFor="let col of chartConfig.columns">
-                    <span>{{row[col.field]}}</span>
+                    <span style="word-break: break-all">{{row[col.field]}}</span>
                   </td>
 
               </tr>
@@ -114,6 +117,15 @@ export class LibDashboardPrimengComponent implements OnInit, AfterViewInit {
 
   @ViewChild('tb', {static: true})
   myIdentifier: ElementRef;
+
+  private tableRef: Table;
+
+  @ViewChild('dt', {static: false}) set content(content: Table) {
+    if(content) {
+        this.tableRef = content;
+    }
+ }
+  
 
   constructor() { }
 
@@ -183,6 +195,14 @@ export class LibDashboardPrimengComponent implements OnInit, AfterViewInit {
     }
 
     return this.dataset.source[0][this.dataset.dimensions[0]];
+  }
+
+  getFirst(): string {
+    return this.tableRef ? String(this.tableRef._first + 1) : "";
+  }
+
+  getLast(): string {
+    return this.tableRef ? String(Math.min(this.tableRef._first + this.tableRef.rows, this.dataset.source.length)) : "";
   }
 
 }
