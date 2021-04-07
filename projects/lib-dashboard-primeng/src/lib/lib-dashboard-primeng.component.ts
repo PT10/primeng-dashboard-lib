@@ -11,7 +11,7 @@ import { Table } from 'primeng/table';
             <textarea type="text" pInputTextarea autoResize="true" style="width: 90%" [rows]="chartConfig.rows" [placeholder]="chartConfig.emptyText" 
             (blur)="searchQueryChange.emit(searchQuery);"
             [(ngModel)]="searchQuery"></textarea> <!-- (blur)="triggerEvent({data: chartConfig.value})" (keyup.enter)="triggerEvent({data: chartConfig.value})" -->
-            <button pButton type="button" [label]="chartConfig.buttonText" (click)="triggerEvent({data: chartConfig.value})"></button>
+            <button pButton type="button" [label]="chartConfig.buttonText" (click)="triggerEvent({data: searchQuery})"></button>
           </div>
       </div>
     </div>
