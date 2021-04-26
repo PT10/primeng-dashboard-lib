@@ -24,13 +24,14 @@ import { Table } from 'primeng/table';
       </div>
     </div>
     <div *ngSwitchCase="'timerange'" class="ui-g ui-fluid">
-      <div class="ui-g-12 ui-md-10">
+      <div class="ui-g-12 ui-md-12">
         <div class="ui-inputgroup">
           <label style="padding-right: 10px; width: 20%">{{chartConfig.label}}</label>
-          <p-calendar [ngStyle]="{'width': '80%'}" [(ngModel)]="timeWindow" selectionMode="range" [showTime]="true"
+          <p-calendar [ngStyle]="{'width': '70%', 'border': timeWindow && timeWindow.includes(null) ? '1px solid red': ''}" [(ngModel)]="timeWindow" selectionMode="range" [showTime]="true"
             (onClose)="timeWindowChange.emit(timeWindow); triggerEvent({data: timeWindow})"
             [readonlyInput]="false" [showIcon]="true" [appendTo]="'body'"> <!-- (onClose)="dateRange.length === 2 ? triggerEvent({data: dateRange}) : undefined" -->
           </p-calendar>
+          <span *ngIf="timeWindow && timeWindow.includes(null)" style="width: 10%; color: red; margin-left: 5px" class="glyphicon glyphicon-exclamation-sign" title="Invalid time range"></span>
         </div>
       </div>
     </div>
@@ -118,13 +119,16 @@ export class LibDashboardPrimengComponent implements OnInit, AfterViewInit {
   @ViewChild('tb', {static: true})
   myIdentifier: ElementRef;
 
-  private tableRef: Table;
+  // private tableRef: Table;
 
-  @ViewChild('dt', {static: false}) set content(content: Table) {
-    if(content) {
-        this.tableRef = content;
-    }
- }
+  // @ViewChild('dt', {static: false}) set content(content: Table) {
+  //   if(content) {
+  //       this.tableRef = content;
+  //   }
+  // }
+
+  @ViewChild('dt', {static: false})
+  private tableRef?: Table
   
 
   constructor() { }
