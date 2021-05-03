@@ -72,7 +72,8 @@ import { Table } from 'primeng/table';
           <ng-template pTemplate="body" let-row let-i="rowIndex">
               <tr>
                   <td *ngFor="let col of chartConfig.columns">
-                    <span style="word-break: break-all">{{row[col.field]}}</span>
+                    <span *ngIf="col.type && ['datetime', 'date'].includes(col.type)" style="word-break: break-all">{{row[col.field] | date:'MM-dd-yyyy HH:mm:ss.SSS'}}</span>
+                    <span *ngIf="!col.type || !['datetime', 'date'].includes(col.type)" style="word-break: break-all">{{row[col.field]}}</span>
                   </td>
 
               </tr>
